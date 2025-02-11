@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business AI Analytics Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input {
+            margin: 10px;
+            padding: 8px;
+        }
+        .dashboard {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Business AI Analytics Dashboard</h2>
+        <input type="file" id="fileInput">
+        <button onclick="processFile()">Upload & Analyze</button>
+        <div class="dashboard">
+            <h3>Business Data Overview</h3>
+            <div id="barChart"></div>
+            <div id="pieChart"></div>
+        </div>
+    </div>
+
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById("fileInput").files[0];
+            if (!fileInput) {
+                alert("Please select a JSON file.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const jsonData = JSON.parse(event.target.result);
+                analyzeData(jsonData);
+            };
+            reader.readAsText(fileInput);
+        }
+
+        function analyzeData(data) {
+            let productNames = [];
+            let productViews = [];
+            let estimatedSales = [];
+
+            data.forEach(item => {
+                productNames.push(item["Product Name"]);
+                productViews.push(item["Product Views"]);
+                estimatedSales.push(item["Estimated Sales"]);
+            });
+
+            const trace1 = {
+                x: productNames,
+                y: productViews,
+                type: 'bar',
+                name: 'Product Views'
+            };
+
+            const trace2 = {
+                x: productNames,
+                y: estimatedSales,
+                type: 'bar',
+                name: 'Estimated Sales'
+            };
+
+            const barLayout = {
+                title: "Product Views vs Estimated Sales",
+                barmode: "group"
+            };
+
+            Plotly.newPlot('barChart', [trace1, trace2], barLayout);
+
+            const pieData = [{
+                labels: productNames,
+                values: estimatedSales,
+                type: 'pie'
+            }];
+
+            Plotly.newPlot('pieChart', pieData, { title: "Sales Distribution" });
+        }
+    </script>
+
+</body>
+</html>
